@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>예견미용사 응시원서 접수 시스템 - KAPP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #7CB342;
+            --secondary-orange: #FF7043;
+            --text-color: #333333;
+            --border-color: #cccccc;
+            --bg-color: #f8f9fa;
+            --white: #ffffff;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.4;
+        }
+
+        /* 메인 페이지 */
+        .main-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-green), #8BC34A);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .hero-content {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            max-width: 500px;
+        }
+
+        .kapp-logo {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .exam-btn {
+            background: linear-gradient(135deg, var(--primary-green), #8BC34A);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(124, 179, 66, 0.3);
+        }
+
+        .exam-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(124, 179, 66, 0.4);
+        }
+
+        /* 팝업 스타일 */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .popup-content {
+            background: var(--white);
+            border-radius: 8px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #f0f0f0;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #666;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .close-btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* 응시원서 양식 */
+        .form-header {
+            background: var(--white);
+            padding: 20px;
+            border-bottom: 2px solid var(--primary-green);
+            text-align: center;
+            position: relative;
+        }
+
+        .form-logo {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .form-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-subtitle {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-number {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* 테이블 스타일 */
+        .form-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        .form-table th,
+        .form-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .form-table th {
+            background: var(--primary-green);
+            color: white;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .header-row th {
+            color: white;
+            font-weight: 600;
+            padding: 12px 8px;
+        }
+
+        .category-header {
+            background: #E8F5E8;
+            font-weight: 600;
+            text-align: center;
+            width: 120px;
+        }
+
+        .orange-header {
+            background: var(--secondary-orange);
+            color: white;
+        }
+
+        .green-header {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .input-cell {
+            background: white;
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            border: none;
+            padding: 4px 8px;
+            font-size: 0.9rem;
+            font-family: 'Noto Sans KR', sans-serif;
+            background: transparent;
+        }
+
+        .form-input:focus {
+            outline: 2px solid var(--primary-green);
+            background: #f8fff8;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* 사진 업로드 영역 */
+        .photo-upload {
+            width: 120px;
+            height: 160px;
+            border: 2px dashed var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fafafa;
+            position: relative;
+        }
+
+        .photo-upload:hover {
+            border-color: var(--primary-green);
+            background: #f0f8f0;
+        }
+
+        .photo-upload.has-image {
+            border-style: solid;
+            padding: 0;
+        }
+
+        .photo-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .photo-placeholder {
+            text-align: center;
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .photo-input {
+            display: none;
+        }
+
+        /* 서명 영역 */
+        .signature-area {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            min-height: 80px;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .signature-text {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* 주의사항 */
+        .notice-section {
+            background: #f9f9f9;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary-green);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        /* 버튼 그룹 */
+        .form-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #689F39;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* 시험 선택 단계 */
+        .exam-selection {
+            padding: 20px;
+        }
+
+        .exam-options {
+            display: grid;
+            gap: 1rem;
+            margin: 20px 0;
+        }
+
+        .exam-card {
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .exam-card:hover,
+        .exam-card.selected {
+            border-color: var(--primary-green);
+            background: #f8fff8;
+        }
+
+        .exam-card h3 {
+            color: var(--text-color);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .exam-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* 성공 페이지 스타일 */
+        .success-section {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .success-section h2 {
+            color: var(--primary-green);
+            margin-bottom: 20px;
+        }
+
+        .exam-ticket {
+            background: #f8fff8;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid var(--primary-green);
+        }
+
+        .exam-ticket h3 {
+            margin-bottom: 10px;
+        }
+
+        .ticket-number {
+            font-family: monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 10px 0;
+            color: var(--primary-green);
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .form-logo {
+                position: relative;
+                left: auto;
+                top: auto;
+                transform: none;
+                margin: 0 auto 1rem;
+            }
+            
+            .form-number {
+                position: relative;
+                right: auto;
+                top: auto;
+                text-align: center;
+                margin-top: 1rem;
+            }
+            
+            .checkbox-group {
+                gap: 10px;
+            }
+            
+            .form-table th,
+            .form-table td {
+                padding: 6px 8px;
+                font-size: 0.8rem;
+            }
+
+            .popup-content {
+                width: 95%;
+                margin: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 메인 페이지 -->
+    <div id="mainPage" class="main-page">
+        <div class="hero-content">
+            <div class="kapp-logo">KAPP</div>
+            <h1 class="hero-title">예견미용사</h1>
+            <p class="hero-subtitle">필기/실기시험 응시원서</p>
+            <button class="exam-btn" onclick="openRegistrationPopup()">
+                응시원서 접수
+            </button>
+        </div>
+    </div>
+
+    <!-- 응시원서 접수 팝업 -->
+    <div id="registrationPopup" class="popup-overlay">
+        <div class="popup-content">
+            <button class="close-btn" onclick="closePopup()">&times;</button>
+            
+            <!-- 1단계: 시험 선택 -->
+            <div id="examSelection" class="exam-selection">
+                <h2 style="text-align: center; margin-bottom: 1rem; color: var(--text-color);">시험 구분 선택</h2>
+                <div class="exam-options">
+                    <div class="exam-card" data-exam="written">
+                        <h3>📝 필기시험</h3>
+                        <p>이론 위주의 필기 시험으로 기본 지식을 평가합니다.</p>
+                    </div>
+                    <div class="exam-card" data-exam="practical">
+                        <h3>✂️ 실기시험</h3>
+                        <p>실무 능력을 평가하는 실기시험입니다.</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="proceedToApplication()" disabled id="proceedBtn">
+                        다음 단계
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2단계: 응시원서 작성 -->
+            <div id="applicationForm" style="display: none;">
+                <div class="form-header">
+                    <div class="form-logo">KAPP</div>
+                    <div class="form-number">(제1호)</div>
+                    <h2 class="form-title">예견미용사</h2>
+                    <h3 class="form-subtitle">필기/실기시험 응시원서</h3>
+                </div>
+
+                <div style="padding: 20px;">
+                    <table class="form-table">
+                        <tr class="header-row">
+                            <th class="orange-header" style="width: 100px;">응시구분</th>
+                            <th class="green-header" style="width: 100px;">필기</th>
+                            <th class="green-header" style="width: 100px;">실기</th>
+                            <th class="orange-header" style="width: 120px; color: white;">사진</th>
+                        </tr>
+                        <tr>
+                            <td class="category-header">응시원</td>
+                            <td class="input-cell">
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="written_exam" name="exam_type" value="written">
+                                        <label for="written_exam">응시</label>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="input-cell">
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="practical_exam" name="exam_type" value="practical">
+                                        <label for="practical_exam">응시</label>
+                                    </div>
+                                </div>
+                            </td>
+                            <td rowspan="7" class="input-cell" style="text-align: center; padding: 5px;">
+                                <div class="photo-upload" onclick="document.getElementById('photoInput').click()">
+                                    <div class="photo-placeholder">
+                                        📷<br>사진첨부<br><small>(3×4cm)</small>
+                                    </div>
+                                    <input type="file" id="photoInput" class="photo-input" accept="image/*" onchange="handlePhotoUpload(event)">
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table class="form-table">
+                        <tr class="header-row">
+                            <th class="green-header" colspan="6" style="color: white;">응시자 정보</th>
+                        </tr>
+                        <tr>
+                            <td class="category-header">성명</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="text" class="form-input" name="name" placeholder="성명을 입력하세요" required>
+                            </td>
+                            <td class="category-header">생년월일</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="date" class="form-input" name="birth_date" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="category-header">주소</td>
+                            <td class="input-cell" colspan="5">
+                                <input type="text" class="form-input" name="address" placeholder="주소를 입력하세요" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="category-header">연락처</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="tel" class="form-input" name="phone" placeholder="010-0000-0000" required>
+                            </td>
+                            <td class="category-header">이메일</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="email" class="form-input" name="email" placeholder="example@email.com" required>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table class="form-table">
+                        <tr class="header-row">
+                            <th class="green-header" colspan="6" style="color: white;">학력 및 경력</th>
+                        </tr>
+                        <tr>
+                            <td class="category-header">최종학력</td>
+                            <td class="input-cell" colspan="2">
+                                <select class="form-input" name="education">
+                                    <option value="">선택하세요</option>
+                                    <option value="고등학교">고등학교 졸업</option>
+                                    <option value="전문대학">전문대학 졸업</option>
+                                    <option value="대학교">대학교 졸업</option>
+                                    <option value="대학원">대학원 졸업</option>
+                                </select>
+                            </td>
+                            <td class="category-header">경력</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="text" class="form-input" name="career" placeholder="경력 년수">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="category-header">자격증</td>
+                            <td class="input-cell" colspan="5">
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="cert1" name="certificates" value="미용사(일반)">
+                                        <label for="cert1">미용사(일반)</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="cert2" name="certificates" value="미용사(피부)">
+                                        <label for="cert2">미용사(피부)</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="cert3" name="certificates" value="미용사(네일)">
+                                        <label for="cert3">미용사(네일)</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="cert4" name="certificates" value="기타">
+                                        <label for="cert4">기타</label>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="notice-section">
+                        <strong>유의사항:</strong><br>
+                        • 상기 정보는 정확히 기재하여 주시기 바랍니다.<br>
+                        • 허위 기재시 응시가 취소될 수 있습니다.<br>
+                        • 시험 당일 신분증을 반드시 지참해 주세요.
+                    </div>
+
+                    <div class="signature-area">
+                        <div style="margin-top: 20px;">위 정보가 정확함을 확인합니다.</div>
+                        <div class="signature-text">
+                            년&nbsp;&nbsp;&nbsp;&nbsp;월&nbsp;&nbsp;&nbsp;&nbsp;일<br><br>
+                            신청인: _________________ (서명)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-buttons">
+                    <button class="btn btn-secondary" onclick="goBackToSelection()">이전</button>
+                    <button class="btn btn-primary" onclick="proceedToPayment()">결제하기</button>
+                </div>
+            </div>
+
+            <!-- 3단계: 결제 완료 -->
+            <div id="successSection" class="success-section" style="display: none;">
+                <h2>✅ 접수 완료</h2>
+                <div class="exam-ticket">
+                    <h3>응시표</h3>
+                    <div class="ticket-number" id="ticketNumber">
+                        KAPP-2024-001234
+                    </div>
+                    <p>응시자: <span id="applicantName"></span></p>
+                    <p>시험 구분: <span id="examType"></span></p>
+                    <p>접수일: <span id="applicationDate"></span></p>
+                </div>
+                <div class="form-buttons">
+                    <button class="btn btn-primary" onclick="downloadTicket()">응시표 다운로드</button>
+                    <button class="btn btn-secondary" onclick="closePopup()">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedExamType = '';
+        let hasPhoto = false;
+
+        // 팝업 관리
+        function openRegistrationPopup() {
+            document.getElementById('registrationPopup').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePopup() {
+            document.getElementById('registrationPopup').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            resetForm();
+        }
+
+        function resetForm() {
+            document.getElementById('examSelection').style.display = 'block';
+            document.getElementById('applicationForm').style.display = 'none';
+            document.getElementById('successSection').style.display = 'none';
+            
+            document.querySelectorAll('.exam-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.getElementById('proceedBtn').disabled = true;
+            selectedExamType = '';
+            hasPhoto = false;
+        }
+
+        // 시험 선택
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.exam-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.exam-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedExamType = this.dataset.exam;
+                    document.getElementById('proceedBtn').disabled = false;
+                    
+                    // 응시구분 체크박스 자동 체크
+                    document.querySelectorAll('input[name="exam_type"]').forEach(cb => cb.checked = false);
+                    if (selectedExamType === 'written') {
+                        document.getElementById('written_exam').checked = true;
+                    } else if (selectedExamType === 'practical') {
+                        document.getElementById('practical_exam').checked = true;
+                    }
+                });
+            });
+        });
+
+        function proceedToApplication() {
+            if (!selectedExamType) return;
+            
+            document.getElementById('examSelection').style.display = 'none';
+            document.getElementById('applicationForm').style.display = 'block';
+        }
+
+        function goBackToSelection() {
+            document.getElementById('applicationForm').style.display = 'none';
+            document.getElementById('examSelection').style.display = 'block';
+        }
+
+        // 사진 업로드 처리
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoUpload = document.querySelector('.photo-upload');
+                    photoUpload.innerHTML = `<img src="${e.target.result}" class="photo-preview" alt="업로드된 사진">`;
+                    photoUpload.classList.add('has-image');
+                    hasPhoto = true;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function proceedToPayment() {
+            // 필수 필드 검증
+            const name = document.querySelector('input[name="name"]').value;
+            const birthDate = document.querySelector('input[name="birth_date"]').value;
+            const phone = document.querySelector('input[name="phone"]').value;
+            const email = document.querySelector('input[name="email"]').value;
+            const address = document.querySelector('input[name="address"]').value;
+
+            if (!name || !birthDate || !phone || !email || !address) {
+                alert('필수 정보를 모두 입력해주세요.');
+                return;
+            }
+
+            // 사진 확인
+            if (!hasPhoto) {
+                alert('사진을 업로드해주세요.');
+                return;
+            }
+
+            // 결제 프로세스 건너뛰고 바로 완료
+            completeRegistration();
+        }
+
+        function completeRegistration() {
+            // 응시표 정보 생성
+            const ticketNumber = 'KAPP-' + new Date().getFullYear() + '-' + 
+                                Math.floor(Math.random() * 999999).toString().padStart(6, '0');
+            
+            const examNames = {
+                'written': '필기시험',
+                'practical': '실기시험'
+            };
+            
+            const applicantName = document.querySelector('input[name="name"]').value;
+            
+            document.getElementById('ticketNumber').textContent = ticketNumber;
+            document.getElementById('applicantName').textContent = applicantName;
+            document.getElementById('examType').textContent = examNames[selectedExamType];
+            document.getElementById('applicationDate').textContent = new Date().toLocaleDateString('ko-KR');
+            
+            // 완료 페이지 표시
+            document.getElementById('applicationForm').style.display = 'none';
+            document.getElementById('successSection').style.display = 'block';
+        }
+
+        function downloadTicket() {
+            alert('응시표 다운로드 기능이 실행됩니다.\n(실제 구현시 PDF 생성)');
+        }
+
+        // ESC 키로 팝업 닫기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePopup();
+            }
+        });
+
+        // 팝업 외부 클릭으로 닫기
+        document.getElementById('registrationPopup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePopup();
+            }
+        });
+    </script>
+</body>
+</html>
